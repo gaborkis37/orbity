@@ -5,8 +5,8 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 3.4 implemented; browser FPS verification pending; no PR per request._
-**Current phase:** Phase 2 (backend) complete; Phase 3 (frontend) in progress
+**Last updated:** 2026-06-30 — _Phase 4 claimed for implementation; Task 3.4 browser verification remains part of the upcoming manual test pass._
+**Current phase:** Phase 2 (backend) complete; Phase 3 verification + Phase 4 implementation in progress
 **Overall progress:** 7 / 14 v1 tasks complete
 
 ---
@@ -27,7 +27,7 @@
 
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-_No additional tasks are ready until Task 3.4 is complete._
+_Phase 4 is being implemented as one interaction slice on `feat/4-interaction`; browser acceptance checks follow in the manual test pass._
 
 ---
 
@@ -61,9 +61,9 @@ _No additional tasks are ready until Task 3.4 is complete._
 
 | ID  | Task                                                         | Status | Depends on | Assignee | Branch / PR | Notes                           |
 | --- | ------------------------------------------------------------ | :----: | ---------- | -------- | ----------- | ------------------------------- |
-| 4.1 | Search + autocomplete (debounced typeahead, group shortcuts) |   ⬜   | 3.4, 2.3   | —        | —           |                                 |
-| 4.2 | Click-to-inspect live info panel                             |   ⬜   | 3.4        | —        | —           | Pick nearest on overlap         |
-| 4.3 | Orbit path rendering for selected object                     |   ⬜   | 4.2        | —        | —           | Clean up primitives on deselect |
+| 4.1 | Search + autocomplete (debounced typeahead, group shortcuts) |   🟡   | 3.4, 2.3   | Codex    | feat/4-interaction | Implementing with the Phase 4 interaction state |
+| 4.2 | Click-to-inspect live info panel                             |   🟡   | 3.4        | Codex    | feat/4-interaction | Pick nearest on overlap         |
+| 4.3 | Orbit path rendering for selected object                     |   🟡   | 4.2        | Codex    | feat/4-interaction | Clean up primitives on deselect |
 
 ### Phase 5 — Ship it
 
