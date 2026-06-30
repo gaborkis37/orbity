@@ -5,7 +5,7 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 2.2 (CelesTrak ingestion + Redis cache + scheduled refresh) built & verified; in review (uncommitted)._
+**Last updated:** 2026-06-30 — _Task 2.3 (public API endpoints + Swagger) started._
 **Current phase:** Phase 2 (backend) + Phase 3 (frontend) in progress
 **Overall progress:** 4 / 14 v1 tasks complete (2.2 in review)
 
@@ -27,7 +27,6 @@
 
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-- **Task 2.3 — Public API endpoints (`/satellites`, `/search`, `/groups`) + Swagger** _(backend track; dep 2.2 built & verified — cache repository + types ready to serve)_
 - **Task 3.2 — Cesium globe via Resium** _(frontend track; deps 3.1 ✅ met — adds `cesium`/`resium`, client-only)_
 
 _Backend track 2.3 and frontend track 3.2→3.3→3.4 can run in parallel. (2.2 is in review/uncommitted; 2.3 can build on its `SatelliteCacheRepository` now.)_
@@ -48,8 +47,8 @@ _Backend track 2.3 and frontend track 3.2→3.3→3.4 can run in parallel. (2.2 
 | ID  | Task                                                           | Status | Depends on | Assignee | Branch / PR                  | Notes                                                                                                             |
 | --- | -------------------------------------------------------------- | :----: | ---------- | -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | 2.1 | NestJS skeleton + /health + config + Dockerfile + CORS         |   ✅   | 1.1        | Claude   | (uncommitted)                | typed config+validation, pino logging, ValidationPipe; /health 200; docker image built & container serves /health |
-| 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh          |   🔵   | 2.1, 1.2   | Claude   | feat/2.2-celestrak-ingestion | All acceptance criteria verified vs live CelesTrak + local Redis; uncommitted (no PR yet)                         |
-| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   ⬜   | 2.2        | —        | —                            | gzip bulk; ETag/Cache-Control                                                                                     |
+| 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh          |   ✅   | 2.1, 1.2   | Claude   | PR #1                        | All acceptance criteria verified vs live CelesTrak + local Redis                                                 |
+| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   🟡   | 2.2        | Codex    | feat/2.3-public-api          | gzip bulk; ETag/Cache-Control                                                                                     |
 
 ### Phase 3 — Frontend (visualization)
 
