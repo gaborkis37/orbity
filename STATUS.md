@@ -5,7 +5,7 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 3.2 approved and complete; Task 3.3 is ready to start._
+**Last updated:** 2026-06-30 — _Task 3.3 claimed; propagation worker pipeline in progress._
 **Current phase:** Phase 2 (backend) complete; Phase 3 (frontend) in progress
 **Overall progress:** 6 / 14 v1 tasks complete
 
@@ -27,7 +27,7 @@
 
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-- **Task 3.3 — Propagation Web Worker + position pipeline** _(deps 3.2, 1.2, and 2.3 ✅ met — transferable typed arrays)_
+_No additional tasks are ready until Task 3.3 is complete._
 
 ---
 
@@ -50,12 +50,12 @@ These tasks have all dependencies met. Claim one by setting it 🟡 + your name 
 
 ### Phase 3 — Frontend (visualization)
 
-| ID  | Task                                                             | Status | Depends on    | Assignee | Branch / PR           | Notes                                                                                                                                                                                                                                                                |
-| --- | ---------------------------------------------------------------- | :----: | ------------- | -------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3.1 | Next.js app shell + dark space UI + typed API client             |   ✅   | 1.1           | Claude   | (uncommitted)         | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
-| 3.2 | Cesium globe via Resium (client-only, assets wired)              |   ✅   | 3.1           | Codex    | feat/3.2-cesium-globe | Resium Viewer, local Natural Earth imagery, sun lighting, clean controls; Workers/Assets/Widgets/ThirdParty emitted; root gates pass; approved complete.                                                                                                             |
-| 3.3 | Propagation Web Worker + position pipeline                       |   ⬜   | 3.2, 1.2, 2.3 | —        | —                     | Transferable typed arrays                                                                                                                                                                                                                                            |
-| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   ⬜   | 3.3           | —        | —                     | Few draw calls; no entity churn                                                                                                                                                                                                                                      |
+| ID  | Task                                                             | Status | Depends on    | Assignee | Branch / PR                 | Notes                                                                                                                                                                                                                                                                |
+| --- | ---------------------------------------------------------------- | :----: | ------------- | -------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3.1 | Next.js app shell + dark space UI + typed API client             |   ✅   | 1.1           | Claude   | (uncommitted)               | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
+| 3.2 | Cesium globe via Resium (client-only, assets wired)              |   ✅   | 3.1           | Codex    | feat/3.2-cesium-globe       | Resium Viewer, local Natural Earth imagery, sun lighting, clean controls; Workers/Assets/Widgets/ThirdParty emitted; root gates pass; approved complete.                                                                                                             |
+| 3.3 | Propagation Web Worker + position pipeline                       |   🟡   | 3.2, 1.2, 2.3 | Codex    | feat/3.3-propagation-worker | Transferable typed arrays                                                                                                                                                                                                                                            |
+| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   ⬜   | 3.3           | —        | —                           | Few draw calls; no entity churn                                                                                                                                                                                                                                      |
 
 ### Phase 4 — Interaction
 
