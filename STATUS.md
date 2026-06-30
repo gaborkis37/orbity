@@ -5,9 +5,9 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 2.1 (NestJS skeleton + /health + config) complete._
-**Current phase:** Phase 2 (backend) in progress; Phase 3 (frontend) open
-**Overall progress:** 3 / 14 v1 tasks complete
+**Last updated:** 2026-06-30 — _Task 3.1 (Next.js app shell + design system + typed API client) complete._
+**Current phase:** Phase 2 (backend) + Phase 3 (frontend) in progress
+**Overall progress:** 4 / 14 v1 tasks complete
 
 ---
 
@@ -26,9 +26,9 @@
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
 - **Task 2.2 — CelesTrak ingestion + Redis cache** _(backend track; deps 2.1 ✅ + 1.2 ✅ met)_
-- **Task 3.1 — Next.js app shell + design system** _(frontend track; parallel-safe)_
+- **Task 3.2 — Cesium globe via Resium** _(frontend track; deps 3.1 ✅ met — adds `cesium`/`resium`, client-only)_
 
-_Backend track 2.2→2.3 and frontend track 3.1→3.2→3.3→3.4 can run in parallel._
+_Backend track 2.2→2.3 and frontend track 3.2→3.3→3.4 can run in parallel._
 
 ---
 
@@ -50,7 +50,7 @@ _Backend track 2.2→2.3 and frontend track 3.1→3.2→3.3→3.4 can run in par
 ### Phase 3 — Frontend (visualization)
 | ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
 |----|------|:------:|------------|----------|-------------|-------|
-| 3.1 | Next.js app shell + dark space UI + typed API client | ⬜ | 1.1 | — | — | parallel-safe after 1.1 |
+| 3.1 | Next.js app shell + dark space UI + typed API client | ✅ | 1.1 | Claude | (uncommitted) | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
 | 3.2 | Cesium globe via Resium (client-only, assets wired) | ⬜ | 3.1 | — | — | No SSR for Cesium |
 | 3.3 | Propagation Web Worker + position pipeline | ⬜ | 3.2, 1.2, 2.3 | — | — | Transferable typed arrays |
 | 3.4 | Render satellites as instanced points (PointPrimitiveCollection) | ⬜ | 3.3 | — | — | Few draw calls; no entity churn |
@@ -103,6 +103,7 @@ _None yet._
 ## 📓 Changelog (append-only — newest first)
 Each entry: date — task — what changed — who.
 
+- **2026-06-30** — _3.1_ — Next.js app shell + dark "space" design system. Full-viewport globe canvas placeholder (`GlobeCanvas`, ready for Resium in 3.2) with a pointer-events-aware HUD overlay: brand mark + search bar (top), info panel (right on desktop / bottom sheet on mobile), and a live API connectivity badge. Design tokens as CSS custom properties in `globals.css`; components styled via CSS Modules (no new runtime deps → no lockfile churn). Typed API client in `apps/web/lib/api` (`api.health/satellites/groups/search`, `ApiError`, timeout + abort) reading an env-driven base URL (`NEXT_PUBLIC_API_BASE_URL`); response contract types built on `@orbity/shared` (`SatelliteRecord`, etc.) — these define what 2.2/2.3 will serve. Route-level `loading.tsx`/`error.tsx` boundaries; richer `metadata`/`viewport`. Verified: lint + typecheck + `next build` green (page prerenders static), prod server returns 200 with all shell regions in SSR markup. **Not committed** (per request). — Claude
 - **2026-06-30** — _2.1_ — NestJS API skeleton: typed `ConfigModule` with class-validator env validation (`PORT`, `CORS_ORIGINS`, `REDIS_URL`, `CELESTRAK_BASE_URL`, `REFRESH_INTERVAL_HOURS`, `ADMIN_TOKEN`), structured logging via `nestjs-pino` (pretty in dev, JSON in prod), global `ValidationPipe`, CORS locked to configured origins, shutdown hooks, and a `GET /health` → `{status:"ok",uptime}` endpoint. Multi-stage `apps/api/Dockerfile` (pnpm monorepo aware) + root `.dockerignore`. Verified: `/health` 200 locally and inside a built container (573 MB); CORS header present; logs structured. **Not committed** (per request). — Claude
 - **2026-06-30** — _1.2_ — Shared domain types (`OmmRecord`, `SatelliteMeta`, `SatelliteState`, `Observer`, `LookAngle`, `Vec3`) + SGP4 helpers (`normalizeOmm`, `propagate`, `propagateSatrec`, `lookAngles`) in `packages/shared`, wrapping `satellite.js`. satellite.js v5 is TLE-only, so `normalizeOmm` synthesizes a column-exact TLE with a throwaway satnum while the real (up-to-9-digit) NORAD id is kept in `SatelliteMeta` — verified by test. 8 vitest tests pass; ISS @ epoch computes 416.4 km / 7.663 km/s. Removed the 1.1 stub and updated the web/api demos accordingly. — Claude
 - **2026-06-30** — _1.1_ — Monorepo scaffold landed: pnpm workspace (`apps/web` Next 14, `apps/api` NestJS 10, `packages/shared`), root tsconfig base + ESLint + Prettier, `.env.example` for web & api, README. `@orbity/shared` builds to dist via root `prepare`; imports verified in both apps. `pnpm install/build/typecheck` green; both dev servers return 200. — Claude

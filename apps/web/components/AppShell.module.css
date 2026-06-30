@@ -1,0 +1,72 @@
+.shell {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Overlay layer spans the viewport but lets clicks fall through to the globe. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  padding: var(--space-4);
+  gap: var(--space-4);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.brand {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
+.logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, var(--color-accent-strong), var(--color-nebula));
+  box-shadow: var(--shadow-glow);
+}
+
+.brandName {
+  font-size: 1.1rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+/* Side region holds the info panel; pushed to the right, vertically centered. */
+.side {
+  pointer-events: none;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  min-height: 0;
+}
+
+@media (max-width: 767px) {
+  .overlay {
+    padding: var(--space-3);
+  }
+
+  /* Brand name takes too much room next to search on narrow screens. */
+  .brandName {
+    display: none;
+  }
+
+  /* Info panel becomes a bottom sheet anchored to the floor of the viewport. */
+  .side {
+    align-items: flex-end;
+    justify-content: stretch;
+  }
+}

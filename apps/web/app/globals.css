@@ -1,21 +1,106 @@
+/*
+ * Orbity design system — dark "space" theme.
+ * Tokens live here as CSS custom properties; components consume them via
+ * CSS Modules so we keep one source of truth and zero runtime styling deps.
+ */
 :root {
   color-scheme: dark;
+
+  /* Surfaces (deep space → raised glass panels) */
+  --color-void: #05060a;
+  --color-base: #0a0d16;
+  --color-surface: #0d1320;
+  --color-panel: rgba(13, 17, 28, 0.72);
+  --color-panel-strong: rgba(16, 21, 34, 0.92);
+
+  /* Hairlines */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Text */
+  --color-text: #e6e8ee;
+  --color-text-secondary: #9aa3b2;
+  --color-text-muted: #5f6a7d;
+
+  /* Brand / state */
+  --color-accent: #4da3ff;
+  --color-accent-strong: #6fb6ff;
+  --color-accent-glow: rgba(77, 163, 255, 0.35);
+  --color-nebula: #7c5cff;
+  --color-success: #3ddc97;
+  --color-warning: #ffb454;
+  --color-danger: #ff5d6c;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 24px var(--color-accent-glow);
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo,
+    Consolas, monospace;
+
+  /* Stacking order: canvas sits behind overlays, panels above overlays */
+  --z-canvas: 0;
+  --z-overlay: 10;
+  --z-panel: 20;
+  --z-modal: 50;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
-  background: #05060a;
-  color: #e6e8ee;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  height: 100%;
 }
 
-main {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+body {
+  background: var(--color-void);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Lock the page to the viewport — the globe canvas owns the scroll space. */
+  overflow: hidden;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
