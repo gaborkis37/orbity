@@ -1,11 +1,7 @@
 import type { Scene } from 'cesium';
 import { describe, expect, it, vi } from 'vitest';
 import type { SatelliteRecord } from '@/lib/api';
-import {
-  SatellitePointRenderer,
-  satelliteKind,
-  satelliteMatchesFilter,
-} from './satellite-points';
+import { SatellitePointRenderer, satelliteKind, satelliteMatchesFilter } from './satellite-points';
 
 function record(noradId: number, name: string, group = 'active'): SatelliteRecord {
   return {
@@ -32,6 +28,8 @@ describe('satellite point classification', () => {
     expect(satelliteMatchesFilter(weather, 'all')).toBe(true);
     expect(satelliteMatchesFilter(starlink, 'starlink')).toBe(true);
     expect(satelliteMatchesFilter(weather, 'starlink')).toBe(false);
+    expect(satelliteMatchesFilter(starlink, { noradId: 1 })).toBe(true);
+    expect(satelliteMatchesFilter(weather, { noradId: 1 })).toBe(false);
   });
 
   it('updates visibility without replacing the collection or its points', () => {
@@ -55,6 +53,13 @@ describe('satellite point classification', () => {
     expect(firstPoint.show).toBe(true);
     expect(secondPoint.show).toBe(false);
     expect(add).toHaveBeenCalledTimes(1);
+
+    renderer.setSelected(1);
+    expect(firstPoint.pixelSize).toBeGreaterThan(secondPoint.pixelSize);
+    expect(firstPoint.outlineWidth).toBe(3);
+
+    renderer.setSelected(null);
+    expect(firstPoint.outlineWidth).toBe(0);
 
     renderer.destroy();
     expect(remove).toHaveBeenCalledOnce();
