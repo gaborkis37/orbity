@@ -5,9 +5,9 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 1.1 (monorepo scaffold) complete._
-**Current phase:** Phase 1 — Foundation (in progress)
-**Overall progress:** 1 / 14 v1 tasks complete
+**Last updated:** 2026-06-30 — _Task 1.2 (shared types + SGP4 helpers) complete._
+**Current phase:** Phase 1 — Foundation complete; backend/frontend tracks next
+**Overall progress:** 2 / 14 v1 tasks complete
 
 ---
 
@@ -25,11 +25,10 @@
 ## ▶️ Ready to start now (unblocked)
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-- **Task 1.2 — Shared domain types + SGP4 propagation helpers** _(parallel-safe)_
 - **Task 2.1 — NestJS skeleton + /health + config** _(parallel-safe)_
 - **Task 3.1 — Next.js app shell + design system** _(parallel-safe)_
 
-_All three can run concurrently. The backend track (2.1→2.2→2.3) and frontend track (3.1→3.2→3.3→3.4) proceed in parallel from here._
+_Both can run concurrently. The backend track (2.1→2.2→2.3) and frontend track (3.1→3.2→3.3→3.4) proceed in parallel from here. Task 2.2 and 3.3 are unblocked on the `packages/shared` side now that 1.2 is done._
 
 ---
 
@@ -39,7 +38,7 @@ _All three can run concurrently. The backend track (2.1→2.2→2.3) and fronten
 | ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
 |----|------|:------:|------------|----------|-------------|-------|
 | 1.1 | Monorepo scaffold (pnpm workspace, web/api/shared, lint/tsconfig) | ✅ | — | Claude | initial commit | install/build/typecheck/dev all green |
-| 1.2 | Shared domain types + SGP4 propagation helpers + tests | ⬜ | 1.1 | — | — | parallel-safe after 1.1 |
+| 1.2 | Shared domain types + SGP4 propagation helpers + tests | ✅ | 1.1 | Claude | (this commit) | OMM→TLE→SGP4; ISS 416km/7.66km/s; 9-digit id preserved; 8 tests pass |
 
 ### Phase 2 — Backend (data layer)
 | ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
@@ -104,6 +103,7 @@ _None yet._
 ## 📓 Changelog (append-only — newest first)
 Each entry: date — task — what changed — who.
 
+- **2026-06-30** — _1.2_ — Shared domain types (`OmmRecord`, `SatelliteMeta`, `SatelliteState`, `Observer`, `LookAngle`, `Vec3`) + SGP4 helpers (`normalizeOmm`, `propagate`, `propagateSatrec`, `lookAngles`) in `packages/shared`, wrapping `satellite.js`. satellite.js v5 is TLE-only, so `normalizeOmm` synthesizes a column-exact TLE with a throwaway satnum while the real (up-to-9-digit) NORAD id is kept in `SatelliteMeta` — verified by test. 8 vitest tests pass; ISS @ epoch computes 416.4 km / 7.663 km/s. Removed the 1.1 stub and updated the web/api demos accordingly. — Claude
 - **2026-06-30** — _1.1_ — Monorepo scaffold landed: pnpm workspace (`apps/web` Next 14, `apps/api` NestJS 10, `packages/shared`), root tsconfig base + ESLint + Prettier, `.env.example` for web & api, README. `@orbity/shared` builds to dist via root `prepare`; imports verified in both apps. `pnpm install/build/typecheck` green; both dev servers return 200. — Claude
 - **2026-06-30** — _setup_ — Created tracker (`STATUS.md`), agent protocol (`CLAUDE.md`), and copied spec to `docs/IMPLEMENTATION_PLAN.md`. Repo still empty of code. — Claude
 

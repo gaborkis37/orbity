@@ -1,20 +1,23 @@
 /**
- * @orbity/shared — types & propagation helpers reused by web, api, and (later) mobile.
- *
- * Task 1.1 ships only a stub to prove cross-package imports compile in both apps.
- * Real domain types (OmmRecord, SatelliteMeta, SatelliteState) and the SGP4
- * propagation helpers land in Task 1.2 — replace the stub below then.
+ * @orbity/shared — domain types & SGP4 propagation helpers reused by web, api,
+ * and (later) mobile.
  */
 
 export const SHARED_PACKAGE_VERSION = '0.0.0' as const;
 
-/** Temporary stub. Remove in Task 1.2 once real domain types exist. */
-export interface SharedStub {
-  ok: boolean;
-  name: string;
-}
+export type {
+  Vec3,
+  OmmRecord,
+  SatelliteMeta,
+  SatelliteState,
+  Observer,
+  LookAngle,
+} from './types';
 
-/** Temporary stub. Remove in Task 1.2. */
-export function helloShared(): SharedStub {
-  return { ok: true, name: 'orbity-shared' };
-}
+export {
+  normalizeOmm,
+  propagate,
+  propagateSatrec,
+  lookAngles,
+  type NormalizedOmm,
+} from './propagation';
