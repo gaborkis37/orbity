@@ -7,6 +7,7 @@ export interface AppConfig {
   corsOrigins: string[];
   redisUrl?: string;
   celestrakBaseUrl: string;
+  celestrakGroups: string[];
   refreshIntervalHours: number;
   adminToken?: string;
 }
@@ -30,6 +31,10 @@ export default (): ConfigTree => ({
       .filter(Boolean),
     redisUrl: process.env.REDIS_URL,
     celestrakBaseUrl: process.env.CELESTRAK_BASE_URL ?? 'https://celestrak.org/NORAD/elements',
+    celestrakGroups: (process.env.CELESTRAK_GROUPS ?? 'stations,starlink,active')
+      .split(',')
+      .map((group) => group.trim())
+      .filter(Boolean),
     refreshIntervalHours: parseInt(process.env.REFRESH_INTERVAL_HOURS ?? '6', 10),
     adminToken: process.env.ADMIN_TOKEN,
   },

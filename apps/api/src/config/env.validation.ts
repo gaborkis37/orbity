@@ -36,6 +36,11 @@ export class EnvironmentVariables {
   @IsOptional()
   CELESTRAK_BASE_URL = 'https://celestrak.org/NORAD/elements';
 
+  /** Comma-separated CelesTrak groups to ingest (one bulk request each). */
+  @IsString()
+  @IsOptional()
+  CELESTRAK_GROUPS = 'stations,starlink,active';
+
   /** Ingestion cadence in hours. CelesTrak forbids refreshing more often than every 2 h. */
   @Type(() => Number)
   @IsInt()

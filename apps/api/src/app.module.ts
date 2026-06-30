@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
+import { CacheModule } from './cache/cache.module';
 import configuration, { ConfigTree } from './config/configuration';
 import { NodeEnv, validateEnv } from './config/env.validation';
 import { HealthController } from './health/health.controller';
+import { IngestionModule } from './ingestion/ingestion.module';
 
 @Module({
   imports: [
@@ -35,6 +38,9 @@ import { HealthController } from './health/health.controller';
         };
       },
     }),
+    ScheduleModule.forRoot(),
+    CacheModule,
+    IngestionModule,
   ],
   controllers: [AppController, HealthController],
 })
