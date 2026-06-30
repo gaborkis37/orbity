@@ -5,9 +5,9 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 3.2 implemented and ready for review; browser performance check pending._
+**Last updated:** 2026-06-30 — _Task 3.2 approved and complete; Task 3.3 is ready to start._
 **Current phase:** Phase 2 (backend) complete; Phase 3 (frontend) in progress
-**Overall progress:** 5 / 14 v1 tasks complete
+**Overall progress:** 6 / 14 v1 tasks complete
 
 ---
 
@@ -27,7 +27,7 @@
 
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-_No additional tasks are ready until Task 3.2 is complete._
+- **Task 3.3 — Propagation Web Worker + position pipeline** _(deps 3.2, 1.2, and 2.3 ✅ met — transferable typed arrays)_
 
 ---
 
@@ -42,20 +42,20 @@ _No additional tasks are ready until Task 3.2 is complete._
 
 ### Phase 2 — Backend (data layer)
 
-| ID  | Task                                                           | Status | Depends on | Assignee | Branch / PR                  | Notes                                                                                                             |
-| --- | -------------------------------------------------------------- | :----: | ---------- | -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| 2.1 | NestJS skeleton + /health + config + Dockerfile + CORS         |   ✅   | 1.1        | Claude   | (uncommitted)                | typed config+validation, pino logging, ValidationPipe; /health 200; docker image built & container serves /health |
-| 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh          |   ✅   | 2.1, 1.2   | Claude   | PR #1                        | All acceptance criteria verified vs live CelesTrak + local Redis                                                 |
-| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   ✅   | 2.2        | Codex    | PR #2                        | Redis-backed per-IP limits; ranked search; gzip/cache headers; Swagger; 10 API tests pass                        |
+| ID  | Task                                                           | Status | Depends on | Assignee | Branch / PR   | Notes                                                                                                             |
+| --- | -------------------------------------------------------------- | :----: | ---------- | -------- | ------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 2.1 | NestJS skeleton + /health + config + Dockerfile + CORS         |   ✅   | 1.1        | Claude   | (uncommitted) | typed config+validation, pino logging, ValidationPipe; /health 200; docker image built & container serves /health |
+| 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh          |   ✅   | 2.1, 1.2   | Claude   | PR #1         | All acceptance criteria verified vs live CelesTrak + local Redis                                                  |
+| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   ✅   | 2.2        | Codex    | PR #2         | Redis-backed per-IP limits; ranked search; gzip/cache headers; Swagger; 10 API tests pass                         |
 
 ### Phase 3 — Frontend (visualization)
 
-| ID  | Task                                                             | Status | Depends on    | Assignee | Branch / PR   | Notes                                                                                                                                                                                                                                                                |
-| --- | ---------------------------------------------------------------- | :----: | ------------- | -------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3.1 | Next.js app shell + dark space UI + typed API client             |   ✅   | 1.1           | Claude   | (uncommitted) | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
-| 3.2 | Cesium globe via Resium (client-only, assets wired)              |   🔵   | 3.1           | Codex    | feat/3.2-cesium-globe | Resium Viewer, local Natural Earth imagery, sun lighting, clean controls; Workers/Assets/Widgets/ThirdParty emitted; root gates pass. Browser FPS/console check pending.                                                                             |
-| 3.3 | Propagation Web Worker + position pipeline                       |   ⬜   | 3.2, 1.2, 2.3 | —        | —             | Transferable typed arrays                                                                                                                                                                                                                                            |
-| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   ⬜   | 3.3           | —        | —             | Few draw calls; no entity churn                                                                                                                                                                                                                                      |
+| ID  | Task                                                             | Status | Depends on    | Assignee | Branch / PR           | Notes                                                                                                                                                                                                                                                                |
+| --- | ---------------------------------------------------------------- | :----: | ------------- | -------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3.1 | Next.js app shell + dark space UI + typed API client             |   ✅   | 1.1           | Claude   | (uncommitted)         | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
+| 3.2 | Cesium globe via Resium (client-only, assets wired)              |   ✅   | 3.1           | Codex    | feat/3.2-cesium-globe | Resium Viewer, local Natural Earth imagery, sun lighting, clean controls; Workers/Assets/Widgets/ThirdParty emitted; root gates pass; approved complete.                                                                                                             |
+| 3.3 | Propagation Web Worker + position pipeline                       |   ⬜   | 3.2, 1.2, 2.3 | —        | —                     | Transferable typed arrays                                                                                                                                                                                                                                            |
+| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   ⬜   | 3.3           | —        | —                     | Few draw calls; no entity churn                                                                                                                                                                                                                                      |
 
 ### Phase 4 — Interaction
 
@@ -112,6 +112,7 @@ _None yet._
 
 Each entry: date — task — what changed — who.
 
+- **2026-06-30** — _3.2_ — Task approved and marked complete; Task 3.3 unblocked. — Codex
 - **2026-06-30** — _3.2_ — Added a client-only Resium Viewer with bundled Natural Earth imagery, globe sun lighting, a whole-Earth camera, and unnecessary Cesium widgets disabled. Next/Webpack now copies Cesium Workers, Assets, Widgets, and ThirdParty resources to `/_next/static/cesium`; production output contains all four asset trees and server-rendered HTML contains only the loading fallback. Root lint, typecheck, and build pass. Browser FPS/console verification remains pending because the local-server/headless-Chrome escalation did not execute. — Codex
 - **2026-06-30** — _2.3_ — PR #2 approved and merged into `main`; Task 2.3 complete and Phase 2 backend finished. — Codex
 - **2026-06-30** — _2.3 review follow-up_ — Added configurable per-IP rate limiting to all public API routes using the official NestJS throttler: a shared default budget (`120/min`) plus a stricter bulk catalog budget (`20/min`). Counters use the existing `CacheStore`, so production Redis provides one atomic fixed-window limit across API replicas while Redis-less local/test mode uses memory. Excess traffic returns `429` with `Retry-After`; successful requests expose `X-RateLimit-*` headers. Added explicit trusted-proxy-hop configuration so `req.ip` safely resolves forwarded client addresses. Health, Swagger, and the token-protected admin endpoint are outside the public limiter. HTTP tests verify both budgets and headers; storage tests verify blocking/reset behavior. Production module boot and live `/groups` headers verified; root lint, typecheck, build, and all 18 tests pass. — Codex
