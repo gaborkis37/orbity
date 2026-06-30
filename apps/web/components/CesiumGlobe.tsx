@@ -19,6 +19,10 @@ import type { SatelliteRecord } from '@/lib/api';
 import { DEFAULT_SATELLITE_GROUP, PROPAGATION_TICK_MS } from '@/lib/env';
 import { useSatellitePositionPipeline } from '@/lib/propagation';
 import {
+  DEFAULT_EARTH_VIEW_DISTANCE_M,
+  flyToEarthCentered,
+} from '@/lib/rendering/camera-navigation';
+import {
   SatellitePointRenderer,
   type SatelliteDisplayFilter,
   type SatelliteFilter,
@@ -79,6 +83,23 @@ export function CesiumGlobe({
       TileMapServiceImageryProvider.fromUrl(`${CESIUM_BASE_URL}/Assets/Textures/NaturalEarthII`),
     [],
   );
+
+  function viewSelectedOrbit(): void {
+    const viewer = viewerRef.current?.cesiumElement;
+    const orbit = orbitRendererRef.current;
+    if (!viewer || !orbit) return;
+    flyToEarthCentered(viewer.camera, orbit.overviewDistance);
+  }
+
+  function resetEarthView(): void {
+    const viewer = viewerRef.current?.cesiumElement;
+    if (!viewer) return;
+    flyToEarthCentered(
+      viewer.camera,
+      DEFAULT_EARTH_VIEW_DISTANCE_M,
+      Cartesian3.fromDegrees(19, 20),
+    );
+  }
 
   useEffect(() => {
     const viewer = viewerRef.current?.cesiumElement;
@@ -249,6 +270,19 @@ export function CesiumGlobe({
               ? error
               : 'Loading catalog…'}
         </span>
+      </div>
+      <div className={styles.cameraControls} aria-label="Camera controls">
+        <button
+          type="button"
+          className={styles.cameraButton}
+          disabled={selectedNoradId === null}
+          onClick={viewSelectedOrbit}
+        >
+          View orbit
+        </button>
+        <button type="button" className={styles.cameraButton} onClick={resetEarthView}>
+          Reset view
+        </button>
       </div>
     </>
   );
