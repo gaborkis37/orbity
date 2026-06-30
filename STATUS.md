@@ -5,7 +5,7 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 3.3 reviewed and approved; Task 3.4 unblocked._
+**Last updated:** 2026-06-30 — _Task 3.4 claimed; instanced satellite rendering in progress._
 **Current phase:** Phase 2 (backend) complete; Phase 3 (frontend) in progress
 **Overall progress:** 7 / 14 v1 tasks complete
 
@@ -27,7 +27,7 @@
 
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-- **3.4** — Render satellites as instanced points (PointPrimitiveCollection). Depends on 3.3 ✅.
+_No additional tasks are ready until Task 3.4 is complete._
 
 ---
 
@@ -55,7 +55,7 @@ These tasks have all dependencies met. Claim one by setting it 🟡 + your name 
 | 3.1 | Next.js app shell + dark space UI + typed API client             |   ✅   | 1.1           | Claude   | (uncommitted)               | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
 | 3.2 | Cesium globe via Resium (client-only, assets wired)              |   ✅   | 3.1           | Codex    | feat/3.2-cesium-globe       | Resium Viewer, local Natural Earth imagery, sun lighting, clean controls; Workers/Assets/Widgets/ThirdParty emitted; root gates pass; approved complete.                                                                                                             |
 | 3.3 | Propagation Web Worker + position pipeline                       |   ✅   | 3.2, 1.2, 2.3 | Codex    | feat/3.3-propagation-worker | Bulk API → SGP4 worker → transferable ECEF buffer → Cesium pre-render bridge; configurable tick; 6,001-object test passes. Reviewed and approved. Visual check follows rendering in 3.4.                                                                             |
-| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   ⬜   | 3.3           | —        | —                           | Few draw calls; no entity churn                                                                                                                                                                                                                                      |
+| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   🟡   | 3.3           | Codex    | feat/3.4-instanced-points   | Few draw calls; no entity churn                                                                                                                                                                                                                                      |
 
 ### Phase 4 — Interaction
 
