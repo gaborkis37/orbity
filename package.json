@@ -1,0 +1,29 @@
+{
+  "name": "orbity",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo)",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "prepare": "pnpm --filter @orbity/shared build",
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.4.5"
+  }
+}

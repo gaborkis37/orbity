@@ -1,0 +1,125 @@
+# Orbity — Build Status & Progress Tracker
+
+> **This is the single source of truth for "where are we and what's next."**
+> Read this file + [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) before starting any work.
+> Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
+
+**Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
+**Last updated:** 2026-06-30 — _Task 1.1 (monorepo scaffold) complete._
+**Current phase:** Phase 1 — Foundation (in progress)
+**Overall progress:** 1 / 14 v1 tasks complete
+
+---
+
+## Status legend
+| Symbol | Meaning |
+|--------|---------|
+| ⬜ | Not started |
+| 🟡 | In progress (see Assignee) |
+| 🔵 | In review (PR open, acceptance criteria being verified) |
+| ✅ | Done (acceptance criteria met + merged) |
+| 🚧 | Blocked (see Notes) |
+
+---
+
+## ▶️ Ready to start now (unblocked)
+These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
+
+- **Task 1.2 — Shared domain types + SGP4 propagation helpers** _(parallel-safe)_
+- **Task 2.1 — NestJS skeleton + /health + config** _(parallel-safe)_
+- **Task 3.1 — Next.js app shell + design system** _(parallel-safe)_
+
+_All three can run concurrently. The backend track (2.1→2.2→2.3) and frontend track (3.1→3.2→3.3→3.4) proceed in parallel from here._
+
+---
+
+## Task board
+
+### Phase 1 — Foundation
+| ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
+|----|------|:------:|------------|----------|-------------|-------|
+| 1.1 | Monorepo scaffold (pnpm workspace, web/api/shared, lint/tsconfig) | ✅ | — | Claude | initial commit | install/build/typecheck/dev all green |
+| 1.2 | Shared domain types + SGP4 propagation helpers + tests | ⬜ | 1.1 | — | — | parallel-safe after 1.1 |
+
+### Phase 2 — Backend (data layer)
+| ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
+|----|------|:------:|------------|----------|-------------|-------|
+| 2.1 | NestJS skeleton + /health + config + Dockerfile + CORS | ⬜ | 1.1 | — | — | parallel-safe after 1.1 |
+| 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh | ⬜ | 2.1, 1.2 | — | — | Never let client reach CelesTrak |
+| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger | ⬜ | 2.2 | — | — | gzip bulk; ETag/Cache-Control |
+
+### Phase 3 — Frontend (visualization)
+| ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
+|----|------|:------:|------------|----------|-------------|-------|
+| 3.1 | Next.js app shell + dark space UI + typed API client | ⬜ | 1.1 | — | — | parallel-safe after 1.1 |
+| 3.2 | Cesium globe via Resium (client-only, assets wired) | ⬜ | 3.1 | — | — | No SSR for Cesium |
+| 3.3 | Propagation Web Worker + position pipeline | ⬜ | 3.2, 1.2, 2.3 | — | — | Transferable typed arrays |
+| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) | ⬜ | 3.3 | — | — | Few draw calls; no entity churn |
+
+### Phase 4 — Interaction
+| ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
+|----|------|:------:|------------|----------|-------------|-------|
+| 4.1 | Search + autocomplete (debounced typeahead, group shortcuts) | ⬜ | 3.4, 2.3 | — | — | |
+| 4.2 | Click-to-inspect live info panel | ⬜ | 3.4 | — | — | Pick nearest on overlap |
+| 4.3 | Orbit path rendering for selected object | ⬜ | 4.2 | — | — | Clean up primitives on deselect |
+
+### Phase 5 — Ship it
+| ID | Task | Status | Depends on | Assignee | Branch / PR | Notes |
+|----|------|:------:|------------|----------|-------------|-------|
+| 5.1 | Deploy web (Vercel) + api (Railway/Render) + Upstash Redis | ⬜ | Ph2 + Ph3 | — | — | Lock CORS to Vercel domain |
+| 5.2 | Observability (Sentry, PostHog/Analytics, uptime + stale-ingest alert) | ⬜ | 5.1 | — | — | |
+
+### Phase 6 — Scale-out (DO NOT START until v1 is live & stable)
+| ID | Task | Status | Depends on | Notes |
+|----|------|:------:|------------|-------|
+| 6.1 | Pass prediction service | ⬜ | v1 stable | Deferred |
+| 6.2 | Accounts + saved satellites (Postgres) | ⬜ | v1 stable | Deferred |
+| 6.3 | Expo mobile app | ⬜ | v1 stable | Deferred |
+| 6.4 | AR sighting mode | ⬜ | 6.1, 6.2, 6.3 | Deferred |
+| 6.5 | Solar-system bodies | ⬜ | v1 stable | Deferred |
+
+---
+
+## Critical-path & parallelization map
+```
+1.1  ─┬─► 1.2 ─────────────┐
+      ├─► 2.1 ─► 2.2 ─► 2.3 ┼─► 3.3 ─► 3.4 ─┬─► 4.1
+      └─► 3.1 ─► 3.2 ───────┘                ├─► 4.2 ─► 4.3
+                                             ┘
+   (Ph2 + Ph3 done) ─► 5.1 ─► 5.2  ✅ v1
+```
+- **Backend track:** 2.1 → 2.2 → 2.3
+- **Frontend track:** 3.1 → 3.2 → 3.3 → 3.4  (3.3 also needs 1.2 + 2.3)
+- These two tracks run **in parallel** after 1.1.
+
+---
+
+## 🚧 Blockers / open questions
+_None yet._
+
+<!-- Add as: **[BLOCKER] <task id>** — description — raised by <name> on <date> -->
+
+---
+
+## 📓 Changelog (append-only — newest first)
+Each entry: date — task — what changed — who.
+
+- **2026-06-30** — _1.1_ — Monorepo scaffold landed: pnpm workspace (`apps/web` Next 14, `apps/api` NestJS 10, `packages/shared`), root tsconfig base + ESLint + Prettier, `.env.example` for web & api, README. `@orbity/shared` builds to dist via root `prepare`; imports verified in both apps. `pnpm install/build/typecheck` green; both dev servers return 200. — Claude
+- **2026-06-30** — _setup_ — Created tracker (`STATUS.md`), agent protocol (`CLAUDE.md`), and copied spec to `docs/IMPLEMENTATION_PLAN.md`. Repo still empty of code. — Claude
+
+---
+
+## Environment / infra checklist
+Track what's actually provisioned (separate from code).
+
+| Item | Status | Notes |
+|------|:------:|-------|
+| pnpm workspace | ✅ | created in 1.1 (pnpm 9, Node 20) |
+| Upstash Redis (dev) | ⬜ | needed for 2.2 |
+| Upstash Redis (prod) | ⬜ | needed for 5.1 |
+| Vercel project (web) | ⬜ | 5.1 |
+| Railway/Render service (api) | ⬜ | 5.1 |
+| CelesTrak access verified | ⬜ | 2.2 — respect 2h rate limit |
+| Sentry projects (web + api) | ⬜ | 5.2 |
+| PostHog / Vercel Analytics | ⬜ | 5.2 |
+| Admin token for /admin/refresh | ⬜ | 2.2 |
