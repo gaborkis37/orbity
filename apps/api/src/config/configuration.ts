@@ -5,6 +5,10 @@ export interface AppConfig {
   nodeEnv: NodeEnv;
   port: number;
   corsOrigins: string[];
+  publicRateLimitMax: number;
+  publicBulkRateLimitMax: number;
+  publicRateLimitWindowMs: number;
+  trustProxyHops: number;
   redisUrl?: string;
   celestrakBaseUrl: string;
   celestrakGroups: string[];
@@ -29,6 +33,10 @@ export default (): ConfigTree => ({
       .split(',')
       .map((origin) => origin.trim())
       .filter(Boolean),
+    publicRateLimitMax: parseInt(process.env.PUBLIC_RATE_LIMIT_MAX ?? '120', 10),
+    publicBulkRateLimitMax: parseInt(process.env.PUBLIC_BULK_RATE_LIMIT_MAX ?? '20', 10),
+    publicRateLimitWindowMs: parseInt(process.env.PUBLIC_RATE_LIMIT_WINDOW_MS ?? '60000', 10),
+    trustProxyHops: parseInt(process.env.TRUST_PROXY_HOPS ?? '0', 10),
     redisUrl: process.env.REDIS_URL,
     celestrakBaseUrl: process.env.CELESTRAK_BASE_URL ?? 'https://celestrak.org/NORAD/elements',
     celestrakGroups: (process.env.CELESTRAK_GROUPS ?? 'stations,starlink,active')

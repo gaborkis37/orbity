@@ -1,4 +1,4 @@
-import { CacheStore } from './cache.store';
+import { CacheStore, RateLimitRecord } from './cache.store';
 
 /**
  * In-memory {@link CacheStore} used by unit tests and Redis-less local dev.
@@ -7,6 +7,10 @@ import { CacheStore } from './cache.store';
 export class MemoryCacheStore implements CacheStore {
   private readonly strings = new Map<string, string>();
   private readonly hashes = new Map<string, Map<string, string>>();
+  private readonly rateLimits = new Map<
+    string,
+    { totalHits: number; expiresAt: number; blockedUntil: number }
+  >();
 
   async get(key: string): Promise<string | null> {
     return this.strings.has(key) ? (this.strings.get(key) as string) : null;
@@ -42,6 +46,33 @@ export class MemoryCacheStore implements CacheStore {
     this.hashes.set(key, new Map(fields));
   }
 
+  async incrementRateLimit(
+    key: string,
+    ttlMs: number,
+    limit: number,
+    blockDurationMs: number,
+  ): Promise<RateLimitRecord> {
+    const now = Date.now();
+    let entry = this.rateLimits.get(key);
+
+    if (!entry || entry.expiresAt <= now || (entry.blockedUntil > 0 && entry.blockedUntil <= now)) {
+      entry = { totalHits: 0, expiresAt: now + ttlMs, blockedUntil: 0 };
+      this.rateLimits.set(key, entry);
+    }
+
+    if (entry.blockedUntil <= now) {
+      entry.totalHits += 1;
+      if (entry.totalHits > limit) entry.blockedUntil = now + blockDurationMs;
+    }
+
+    return {
+      totalHits: entry.totalHits,
+      timeToExpire: secondsRemaining(entry.expiresAt, now),
+      isBlocked: entry.blockedUntil > now,
+      timeToBlockExpire: secondsRemaining(entry.blockedUntil, now),
+    };
+  }
+
   async ping(): Promise<void> {
     // Always live.
   }
@@ -49,5 +80,10 @@ export class MemoryCacheStore implements CacheStore {
   async close(): Promise<void> {
     this.strings.clear();
     this.hashes.clear();
+    this.rateLimits.clear();
   }
+}
+
+function secondsRemaining(deadline: number, now: number): number {
+  return deadline > now ? Math.ceil((deadline - now) / 1000) : 0;
 }

@@ -27,6 +27,33 @@ export class EnvironmentVariables {
   @IsOptional()
   CORS_ORIGINS = 'http://localhost:3000';
 
+  /** Shared request budget per client IP across all public API routes. */
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  PUBLIC_RATE_LIMIT_MAX = 120;
+
+  /** Additional, stricter request budget for the bulk catalog route. */
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  PUBLIC_BULK_RATE_LIMIT_MAX = 20;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1000)
+  @IsOptional()
+  PUBLIC_RATE_LIMIT_WINDOW_MS = 60_000;
+
+  /** Number of trusted reverse-proxy hops used when deriving the client IP. */
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  TRUST_PROXY_HOPS = 0;
+
   /** Redis (Upstash) connection string. Optional until ingestion (Task 2.2) is wired. */
   @IsString()
   @IsOptional()

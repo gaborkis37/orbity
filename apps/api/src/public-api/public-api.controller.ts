@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Header, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -7,7 +7,9 @@ import {
   ApiParam,
   ApiProduces,
   ApiTags,
+  ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { SatellitesQueryDto, SearchQueryDto } from './public-api.dto';
 import {
   GroupsResponseDto,
@@ -27,11 +29,15 @@ const CACHE_CONTROL = 'public, max-age=300, s-maxage=3600, stale-while-revalidat
 
 @ApiTags('satellites')
 @ApiProduces('application/json')
+@ApiTooManyRequestsResponse({ description: 'Per-IP request budget exceeded; retry later.' })
+@UseGuards(ThrottlerGuard)
+@SkipThrottle({ bulk: true })
 @Controller()
 export class PublicApiController {
   constructor(private readonly service: PublicApiService) {}
 
   @Get('satellites')
+  @SkipThrottle({ bulk: false })
   @Header('Cache-Control', CACHE_CONTROL)
   @ApiOperation({ summary: 'Get one cached satellite group in bulk' })
   @ApiOkResponse({

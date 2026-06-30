@@ -1,9 +1,17 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
 
 /** Apply the same HTTP middleware and documentation to production and tests. */
-export function configureApplication(app: INestApplication, corsOrigins: string[]): void {
+export function configureApplication(
+  app: NestExpressApplication,
+  corsOrigins: string[],
+  trustProxyHops: number,
+): void {
+  // Rate limiting relies on req.ip. Only trust the explicitly configured
+  // number of reverse-proxy hops when resolving X-Forwarded-For.
+  app.set('trust proxy', trustProxyHops);
   app.enableCors({ origin: corsOrigins, credentials: true });
   app.use(compression());
   app.useGlobalPipes(

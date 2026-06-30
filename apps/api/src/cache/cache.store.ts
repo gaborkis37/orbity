@@ -11,6 +11,15 @@
 /** DI token for the active {@link CacheStore} implementation. */
 export const CACHE_STORE = Symbol('CACHE_STORE');
 
+export interface RateLimitRecord {
+  totalHits: number;
+  /** Seconds until the request window expires. */
+  timeToExpire: number;
+  isBlocked: boolean;
+  /** Seconds until the active block expires. */
+  timeToBlockExpire: number;
+}
+
 export interface CacheStore {
   /** Read a string value, or `null` if the key is absent. */
   get(key: string): Promise<string | null>;
@@ -33,6 +42,14 @@ export interface CacheStore {
    * catalog. Passing an empty object clears the hash.
    */
   replaceHash(key: string, entries: Record<string, string>): Promise<void>;
+
+  /** Atomically consume one request from a fixed-window rate limit. */
+  incrementRateLimit(
+    key: string,
+    ttlMs: number,
+    limit: number,
+    blockDurationMs: number,
+  ): Promise<RateLimitRecord>;
 
   /** Liveness probe; rejects if the backing store is unreachable. */
   ping(): Promise<void>;

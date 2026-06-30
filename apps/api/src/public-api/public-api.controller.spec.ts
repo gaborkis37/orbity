@@ -1,5 +1,7 @@
-import type { INestApplication } from '@nestjs/common';
+import type { ExecutionContext } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
+import { ThrottlerModule } from '@nestjs/throttler';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { configureApplication } from '../app.setup';
@@ -8,7 +10,7 @@ import { SatellitesQueryDto, SearchQueryDto } from './public-api.dto';
 import { PublicApiService } from './public-api.service';
 
 describe('public API HTTP contract', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
 
   beforeAll(async () => {
     // Vitest/esbuild does not emit method design metadata; Swagger requires it
@@ -52,12 +54,34 @@ describe('public API HTTP contract', () => {
       groupsSummary: vi.fn(async () => ({ groups: [] })),
     };
     const module = await Test.createTestingModule({
+      imports: [
+        ThrottlerModule.forRoot({
+          throttlers: [
+            {
+              name: 'default',
+              ttl: 60_000,
+              limit: 5,
+              blockDuration: 60_000,
+              generateKey: (_context: ExecutionContext, tracker: string, name: string) =>
+                `public:${name}:${tracker}`,
+            },
+            {
+              name: 'bulk',
+              ttl: 60_000,
+              limit: 2,
+              blockDuration: 60_000,
+              generateKey: (_context: ExecutionContext, tracker: string, name: string) =>
+                `public:${name}:${tracker}`,
+            },
+          ],
+        }),
+      ],
       controllers: [PublicApiController],
       providers: [{ provide: PublicApiService, useValue: service }],
     }).compile();
 
-    app = module.createNestApplication();
-    configureApplication(app, ['http://localhost:3000']);
+    app = module.createNestApplication<NestExpressApplication>();
+    configureApplication(app, ['http://localhost:3000'], 1);
     await app.init();
   });
 
@@ -72,7 +96,39 @@ describe('public API HTTP contract', () => {
     expect(response.headers['content-encoding']).toBe('gzip');
     expect(response.headers.etag).toBeTruthy();
     expect(response.headers['cache-control']).toContain('s-maxage=3600');
+    expect(response.headers['x-ratelimit-limit']).toBe('5');
+    expect(response.headers['x-ratelimit-limit-bulk']).toBe('2');
     expect(response.body.count).toBe(6_001);
+  });
+
+  it('enforces both shared and stricter bulk per-IP limits', async () => {
+    const bulkIp = '198.51.100.10';
+    await request(app.getHttpServer())
+      .get('/satellites?group=starlink')
+      .set('X-Forwarded-For', bulkIp)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get('/satellites?group=starlink')
+      .set('X-Forwarded-For', bulkIp)
+      .expect(200);
+    const bulkBlocked = await request(app.getHttpServer())
+      .get('/satellites?group=starlink')
+      .set('X-Forwarded-For', bulkIp)
+      .expect(429);
+    expect(bulkBlocked.headers['retry-after-bulk']).toBeTruthy();
+
+    const sharedIp = '198.51.100.11';
+    for (let requestNumber = 0; requestNumber < 5; requestNumber += 1) {
+      await request(app.getHttpServer())
+        .get('/groups')
+        .set('X-Forwarded-For', sharedIp)
+        .expect(200);
+    }
+    const sharedBlocked = await request(app.getHttpServer())
+      .get('/groups')
+      .set('X-Forwarded-For', sharedIp)
+      .expect(429);
+    expect(sharedBlocked.headers['retry-after']).toBeTruthy();
   });
 
   it('validates typeahead limits', async () => {
