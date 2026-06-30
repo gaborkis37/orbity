@@ -9,6 +9,7 @@ import {
 import type { SatelliteRecord } from '@/lib/api';
 
 export type SatelliteFilter = 'all' | 'starlink';
+export type SatelliteDisplayFilter = SatelliteFilter | { noradId: number };
 export type SatelliteKind = 'iss' | 'starlink' | 'station' | 'catalog';
 
 const ISS_NORAD_ID = 25544;
@@ -32,8 +33,9 @@ export function satelliteKind(satellite: SatelliteRecord): SatelliteKind {
 
 export function satelliteMatchesFilter(
   satellite: SatelliteRecord,
-  filter: SatelliteFilter,
+  filter: SatelliteDisplayFilter,
 ): boolean {
+  if (typeof filter === 'object') return satellite.meta.noradId === filter.noradId;
   return filter === 'all' || satelliteKind(satellite) === 'starlink';
 }
 
@@ -48,7 +50,8 @@ export class SatellitePointRenderer {
   private readonly points: PointPrimitive[];
   private readonly positionsValid: boolean[];
   private readonly scratchPosition = new Cartesian3();
-  private filter: SatelliteFilter = 'all';
+  private filter: SatelliteDisplayFilter = 'all';
+  private selectedNoradId: number | null = null;
   private destroyed = false;
 
   constructor(
@@ -73,14 +76,38 @@ export class SatellitePointRenderer {
     return this.points.length;
   }
 
-  setFilter(filter: SatelliteFilter): void {
-    if (this.filter === filter) return;
+  setFilter(filter: SatelliteDisplayFilter): void {
+    if (
+      this.filter === filter ||
+      (typeof this.filter === 'object' &&
+        typeof filter === 'object' &&
+        this.filter.noradId === filter.noradId)
+    ) {
+      return;
+    }
     this.filter = filter;
 
     for (let index = 0; index < this.points.length; index += 1) {
       this.points[index].show =
         this.positionsValid[index] && satelliteMatchesFilter(this.satellites[index], filter);
     }
+  }
+
+  setSelected(noradId: number | null): void {
+    if (this.selectedNoradId === noradId) return;
+
+    for (let index = 0; index < this.points.length; index += 1) {
+      const point = this.points[index];
+      const satellite = this.satellites[index];
+      const style = POINT_STYLE[satelliteKind(satellite)];
+      const selected = satellite.meta.noradId === noradId;
+      point.color = selected ? Color.WHITE : style.color;
+      point.pixelSize = selected ? Math.max(style.pixelSize + 5, 10) : style.pixelSize;
+      point.outlineColor = selected ? Color.fromCssColorString('#4da3ff') : Color.TRANSPARENT;
+      point.outlineWidth = selected ? 3 : 0;
+    }
+
+    this.selectedNoradId = noradId;
   }
 
   updatePositions(positions: Float64Array): void {
@@ -98,7 +125,8 @@ export class SatellitePointRenderer {
       const valid = Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z);
 
       this.positionsValid[index] = valid;
-      this.points[index].show = valid && satelliteMatchesFilter(this.satellites[index], this.filter);
+      this.points[index].show =
+        valid && satelliteMatchesFilter(this.satellites[index], this.filter);
       if (valid) {
         Cartesian3.fromElements(x, y, z, this.scratchPosition);
         this.points[index].position = this.scratchPosition;

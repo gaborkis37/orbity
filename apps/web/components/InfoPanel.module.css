@@ -11,8 +11,21 @@
 }
 
 .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .title {
@@ -22,6 +35,20 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-secondary);
+}
+
+.close {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .body {
@@ -35,6 +62,78 @@
   color: var(--color-text-muted);
   font-size: 0.9rem;
   line-height: 1.5;
+}
+
+.metadata,
+.telemetry {
+  margin: 0;
+}
+
+.metadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.metadata div,
+.telemetry div {
+  min-width: 0;
+}
+
+.metadata dt,
+.telemetry span {
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.metadata dd {
+  margin: 0.3rem 0 0;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telemetry {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4) var(--space-3);
+  padding-top: var(--space-4);
+}
+
+.telemetry span,
+.telemetry strong {
+  display: block;
+}
+
+.telemetry strong {
+  margin-top: 0.3rem;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+
+.live {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: var(--space-4) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+}
+
+.live span {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 8px var(--color-success);
 }
 
 /* Desktop: fixed-width side panel. */

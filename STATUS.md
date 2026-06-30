@@ -5,7 +5,7 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Phase 4 claimed for implementation; Task 3.4 browser verification remains part of the upcoming manual test pass._
+**Last updated:** 2026-06-30 — _All Phase 4 interaction code implemented; 28 repository tests plus lint, typecheck, and production builds pass. Browser acceptance testing pending._
 **Current phase:** Phase 2 (backend) complete; Phase 3 verification + Phase 4 implementation in progress
 **Overall progress:** 7 / 14 v1 tasks complete
 
@@ -55,15 +55,15 @@ _Phase 4 is being implemented as one interaction slice on `feat/4-interaction`; 
 | 3.1 | Next.js app shell + dark space UI + typed API client             |   ✅   | 1.1           | Claude   | (uncommitted)               | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
 | 3.2 | Cesium globe via Resium (client-only, assets wired)              |   ✅   | 3.1           | Codex    | feat/3.2-cesium-globe       | Resium Viewer, local Natural Earth imagery, sun lighting, clean controls; Workers/Assets/Widgets/ThirdParty emitted; root gates pass; approved complete.                                                                                                             |
 | 3.3 | Propagation Web Worker + position pipeline                       |   ✅   | 3.2, 1.2, 2.3 | Codex    | feat/3.3-propagation-worker | Bulk API → SGP4 worker → transferable ECEF buffer → Cesium pre-render bridge; configurable tick; 6,001-object test passes. Reviewed and approved. Visual check follows rendering in 3.4.                                                                             |
-| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   🟡   | 3.3           | Codex    | feat/3.4-instanced-points   | One opaque PointPrimitiveCollection; in-place ECEF updates; All/Starlink visibility toggle preserves collection and points; 23 repo tests + lint/typecheck/build pass. Browser FPS verification pending; no PR per request.                                              |
+| 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   🟡   | 3.3           | Codex    | feat/3.4-instanced-points   | One opaque PointPrimitiveCollection; in-place ECEF updates; All/Starlink visibility toggle preserves collection and points; 23 repo tests + lint/typecheck/build pass. Browser FPS verification pending; no PR per request.                                          |
 
 ### Phase 4 — Interaction
 
-| ID  | Task                                                         | Status | Depends on | Assignee | Branch / PR | Notes                           |
-| --- | ------------------------------------------------------------ | :----: | ---------- | -------- | ----------- | ------------------------------- |
-| 4.1 | Search + autocomplete (debounced typeahead, group shortcuts) |   🟡   | 3.4, 2.3   | Codex    | feat/4-interaction | Implementing with the Phase 4 interaction state |
-| 4.2 | Click-to-inspect live info panel                             |   🟡   | 3.4        | Codex    | feat/4-interaction | Pick nearest on overlap         |
-| 4.3 | Orbit path rendering for selected object                     |   🟡   | 4.2        | Codex    | feat/4-interaction | Clean up primitives on deselect |
+| ID  | Task                                                         | Status | Depends on | Assignee | Branch / PR        | Notes                                         |
+| --- | ------------------------------------------------------------ | :----: | ---------- | -------- | ------------------ | --------------------------------------------- |
+| 4.1 | Search + autocomplete (debounced typeahead, group shortcuts) |   🟡   | 3.4, 2.3   | Codex    | feat/4-interaction | Implemented; browser acceptance pending       |
+| 4.2 | Click-to-inspect live info panel                             |   🟡   | 3.4        | Codex    | feat/4-interaction | Implemented; browser/touch acceptance pending |
+| 4.3 | Orbit path rendering for selected object                     |   🟡   | 4.2        | Codex    | feat/4-interaction | Implemented; browser acceptance pending       |
 
 ### Phase 5 — Ship it
 
@@ -112,6 +112,7 @@ _None yet._
 
 Each entry: date — task — what changed — who.
 
+- **2026-06-30** — _4.1–4.3 implementation_ — Added debounced and session-cached API autocomplete with Starlink/ISS shortcuts, keyboard navigation, single-object filtering, camera focus, nearest primitive click/touch selection, selected-point highlighting, live one-second telemetry, and a closed full-period orbit polyline that refreshes and is removed on deselection. Interaction state updates the existing point collection in place. Added search/filter/orbit tests; all 28 repository tests, lint, typecheck, and production builds pass. Browser acceptance remains pending. — Codex
 - **2026-06-30** — _3.4_ — Implemented active-catalog rendering through one opaque Cesium `PointPrimitiveCollection`: stable worker-order points receive in-place ECEF updates once per completed frame, ISS/Starlink/stations/catalog use distinct styling, invalid positions remain hidden, and the All/Starlink toggle changes existing point visibility without rebuilding the collection. Added collection-identity/filter tests, made `active` the default catalog, and exposed loading/error/count status. All 23 repository tests, lint, typecheck, and production build pass. Browser FPS verification remains pending; no PR created per request. — Codex
 - **2026-06-30** — _3.3_ — Code reviewed and approved; Task 3.3 marked complete and Task 3.4 unblocked. — Codex
 - **2026-06-30** — _3.3_ — Added the bulk position pipeline: the client fetches a configured cached API group, initializes OMM satrecs once in a dedicated module Web Worker, propagates on a configurable tick, and transfers packed ECEF-meter `Float64Array` buffers to a latest-frame ref consumed at Cesium's pre-render boundary. Shared propagation now exposes tested ECEF coordinates; invalid objects retain stable `NaN` slots and failures are explicit. A 6,001-object test validates the one-second budget and true buffer detachment. Production emits a separate worker chunk. All 19 repository tests, lint, typecheck, and build pass. Visual ISS comparison follows in 3.4 when primitives are visible. — Codex
