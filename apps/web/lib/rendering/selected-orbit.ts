@@ -15,6 +15,7 @@ import type { SatelliteRecord } from '@/lib/api';
 const MIN_SAMPLES = 120;
 const MAX_SAMPLES = 360;
 const ORBIT_REFRESH_MS = 60_000;
+const ORBIT_OVERVIEW_PADDING = 2.8;
 
 export function orbitalPeriodMs(meanMotionRevolutionsPerDay: number): number {
   if (!Number.isFinite(meanMotionRevolutionsPerDay) || meanMotionRevolutionsPerDay <= 0) {
@@ -31,6 +32,14 @@ export function createOrbitMaterial(): Material {
   return Material.fromType(Material.ColorType, {
     color: Color.fromCssColorString('#55dff5').withAlpha(0.72),
   });
+}
+
+export function orbitOverviewDistance(positions: Cartesian3[]): number {
+  const maximumRadius = positions.reduce(
+    (largest, position) => Math.max(largest, Cartesian3.magnitude(position)),
+    0,
+  );
+  return Math.max(20_000_000, maximumRadius * ORBIT_OVERVIEW_PADDING);
 }
 
 /**
@@ -61,13 +70,16 @@ export class SelectedOrbitRenderer {
   readonly collection = new PolylineCollection();
   private readonly polyline: Polyline;
   private lastUpdatedAt: number;
+  private overviewDistanceMeters: number;
   private destroyed = false;
 
   constructor(scene: Scene, satellite: SatelliteRecord, at = new Date()) {
     this.satellite = satellite;
     this.lastUpdatedAt = at.getTime();
+    const positions = buildOrbitPositions(satellite, at);
+    this.overviewDistanceMeters = orbitOverviewDistance(positions);
     this.polyline = this.collection.add({
-      positions: buildOrbitPositions(satellite, at),
+      positions,
       width: 2,
       material: createOrbitMaterial(),
     });
@@ -76,9 +88,15 @@ export class SelectedOrbitRenderer {
 
   private readonly satellite: SatelliteRecord;
 
+  get overviewDistance(): number {
+    return this.overviewDistanceMeters;
+  }
+
   update(timestamp: number): void {
     if (timestamp - this.lastUpdatedAt < ORBIT_REFRESH_MS) return;
-    this.polyline.positions = buildOrbitPositions(this.satellite, new Date(timestamp));
+    const positions = buildOrbitPositions(this.satellite, new Date(timestamp));
+    this.polyline.positions = positions;
+    this.overviewDistanceMeters = orbitOverviewDistance(positions);
     this.lastUpdatedAt = timestamp;
   }
 

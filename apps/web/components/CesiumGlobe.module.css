@@ -41,9 +41,48 @@
   color: var(--color-danger);
 }
 
+.cameraControls {
+  position: absolute;
+  z-index: 2;
+  top: 8.7rem;
+  left: var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+  pointer-events: auto;
+}
+
+.cameraButton {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  background: rgba(8, 14, 27, 0.78);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(12px);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.cameraButton:hover:not(:disabled),
+.cameraButton:focus-visible {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+.cameraButton:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
 @media (max-width: 640px) {
   .catalogControl {
     top: 4.75rem;
+    left: var(--space-2);
+  }
+
+  .cameraControls {
+    top: 7.8rem;
     left: var(--space-2);
   }
 
