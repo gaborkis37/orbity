@@ -3,6 +3,7 @@ import {
   Cartesian3,
   Color,
   JulianDate,
+  Material,
   Matrix3,
   type Polyline,
   PolylineCollection,
@@ -24,6 +25,12 @@ export function orbitalPeriodMs(meanMotionRevolutionsPerDay: number): number {
 
 export function orbitSampleCount(periodMs: number): number {
   return Math.max(MIN_SAMPLES, Math.min(MAX_SAMPLES, Math.ceil(periodMs / 30_000)));
+}
+
+export function createOrbitMaterial(): Material {
+  return Material.fromType(Material.ColorType, {
+    color: Color.fromCssColorString('#55dff5').withAlpha(0.72),
+  });
 }
 
 /**
@@ -62,7 +69,7 @@ export class SelectedOrbitRenderer {
     this.polyline = this.collection.add({
       positions: buildOrbitPositions(satellite, at),
       width: 2,
-      material: Color.fromCssColorString('#55dff5').withAlpha(0.72),
+      material: createOrbitMaterial(),
     });
     scene.primitives.add(this.collection);
   }
