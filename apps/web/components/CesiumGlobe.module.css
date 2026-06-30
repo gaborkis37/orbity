@@ -1,0 +1,53 @@
+.catalogControl {
+  position: absolute;
+  z-index: 2;
+  top: 5.5rem;
+  left: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(8, 14, 27, 0.78);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.filterButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.filterButton[data-active='true'] {
+  color: var(--color-text);
+  background: rgba(77, 163, 255, 0.2);
+}
+
+.catalogStatus {
+  padding-right: 0.55rem;
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.catalogStatus[data-error='true'] {
+  color: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .catalogControl {
+    top: 4.75rem;
+    left: var(--space-2);
+  }
+
+  .catalogStatus {
+    display: none;
+  }
+}
