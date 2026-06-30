@@ -5,9 +5,9 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 2.2 (CelesTrak ingestion + Redis cache + scheduled refresh) built & verified; in review (uncommitted)._
+**Last updated:** 2026-06-30 — _Task 2.3 review follow-up: Redis-backed per-IP public API rate limiting added and verified; no PR requested._
 **Current phase:** Phase 2 (backend) + Phase 3 (frontend) in progress
-**Overall progress:** 4 / 14 v1 tasks complete (2.2 in review)
+**Overall progress:** 4 / 14 v1 tasks complete (2.3 built and verified; pending integration)
 
 ---
 
@@ -27,10 +27,9 @@
 
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-- **Task 2.3 — Public API endpoints (`/satellites`, `/search`, `/groups`) + Swagger** _(backend track; dep 2.2 built & verified — cache repository + types ready to serve)_
 - **Task 3.2 — Cesium globe via Resium** _(frontend track; deps 3.1 ✅ met — adds `cesium`/`resium`, client-only)_
 
-_Backend track 2.3 and frontend track 3.2→3.3→3.4 can run in parallel. (2.2 is in review/uncommitted; 2.3 can build on its `SatelliteCacheRepository` now.)_
+_Backend task 2.3 is built and verified on its feature branch. Frontend task 3.2 remains the next unblocked task; integrating 2.3 and completing 3.2 will unblock 3.3._
 
 ---
 
@@ -48,8 +47,8 @@ _Backend track 2.3 and frontend track 3.2→3.3→3.4 can run in parallel. (2.2 
 | ID  | Task                                                           | Status | Depends on | Assignee | Branch / PR                  | Notes                                                                                                             |
 | --- | -------------------------------------------------------------- | :----: | ---------- | -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | 2.1 | NestJS skeleton + /health + config + Dockerfile + CORS         |   ✅   | 1.1        | Claude   | (uncommitted)                | typed config+validation, pino logging, ValidationPipe; /health 200; docker image built & container serves /health |
-| 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh          |   🔵   | 2.1, 1.2   | Claude   | feat/2.2-celestrak-ingestion | All acceptance criteria verified vs live CelesTrak + local Redis; uncommitted (no PR yet)                         |
-| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   ⬜   | 2.2        | —        | —                            | gzip bulk; ETag/Cache-Control                                                                                     |
+| 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh          |   ✅   | 2.1, 1.2   | Claude   | PR #1                        | All acceptance criteria verified vs live CelesTrak + local Redis                                                 |
+| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   🟡   | 2.2        | Codex    | feat/2.3-public-api          | Built + verified; no PR requested. Redis-backed per-IP limits; ranked search; gzip/cache; Swagger; 10 API tests  |
 
 ### Phase 3 — Frontend (visualization)
 
@@ -115,6 +114,8 @@ _None yet._
 
 Each entry: date — task — what changed — who.
 
+- **2026-06-30** — _2.3 review follow-up_ — Added configurable per-IP rate limiting to all public API routes using the official NestJS throttler: a shared default budget (`120/min`) plus a stricter bulk catalog budget (`20/min`). Counters use the existing `CacheStore`, so production Redis provides one atomic fixed-window limit across API replicas while Redis-less local/test mode uses memory. Excess traffic returns `429` with `Retry-After`; successful requests expose `X-RateLimit-*` headers. Added explicit trusted-proxy-hop configuration so `req.ip` safely resolves forwarded client addresses. Health, Swagger, and the token-protected admin endpoint are outside the public limiter. HTTP tests verify both budgets and headers; storage tests verify blocking/reset behavior. Production module boot and live `/groups` headers verified; root lint, typecheck, build, and all 18 tests pass. — Codex
+- **2026-06-30** — _2.3_ — Public cached API delivered: bulk `GET /satellites?group=…`, detail `GET /satellites/:noradId`, ranked/capped `GET /search` (name, exact group, ISS aliases, NORAD id), and `GET /groups` with counts and refresh times. Public responses use edge-friendly `Cache-Control` plus Express ETags; gzip compression is enabled globally. Swagger UI is served at `/docs` with concrete request/response schemas. Web client types now match nullable cache timestamps and accept a satellite group. HTTP tests verify a compressed 6,001-record payload, ETag/cache headers, query validation, and Swagger; service tests verify ISS/Starlink/NORAD ranking. Root lint, typecheck, build, and all 16 tests pass. — Codex
 - **2026-06-30** — _2.2_ — CelesTrak ingestion + Redis cache + scheduled refresh. A `CacheStore` abstraction (`apps/api/src/cache`) with a Redis (`ioredis`) impl and an in-memory fallback, wired by `REDIS_URL` (works against local Redis and Upstash; atomic `byId` rebuild via temp-key + RENAME). `CelestrakClient` is the only server-side caller of CelesTrak (`FORMAT=json` OMM, 30s timeout, no client path reaches it). `IngestionService` fetches the configured groups (`stations,starlink,active`) with per-group retry/backoff, normalizes OMM→meta via `@orbity/shared` (skipping unparseable records), writes per-group blobs, then rebuilds a deduped `byId` hash + lightweight name/id/group search index (most-specific group wins). Scheduled via `@nestjs/schedule` every `REFRESH_INTERVAL_HOURS` (±10% jitter, hard 2 h floor); on any group failure the previous cache is kept and `lastRefresh` only advances when ≥1 group succeeds. Guarded `POST /admin/refresh` (`ADMIN_TOKEN`, constant-time compare, fails closed) forces a cycle. Vitest unit tests cover the happy path + a simulated 500 outage. **Verified** end-to-end: booted against a local Redis container ingesting live CelesTrak → 24 stations / 10 667 starlink / 15 891 active (15 893 deduped) with a refresh timestamp; a forced re-refresh hit a real CelesTrak 403 yet left the 15 893-object cache fully intact (criteria 1+2); only `/`, `/health`, `/admin/refresh` routes exist (criterion 3); 401 on missing/bad admin token. lint + typecheck + build + tests green. **Not committed** (per request). — Claude
 - **2026-06-30** — _3.1_ — Next.js app shell + dark "space" design system. Full-viewport globe canvas placeholder (`GlobeCanvas`, ready for Resium in 3.2) with a pointer-events-aware HUD overlay: brand mark + search bar (top), info panel (right on desktop / bottom sheet on mobile), and a live API connectivity badge. Design tokens as CSS custom properties in `globals.css`; components styled via CSS Modules (no new runtime deps → no lockfile churn). Typed API client in `apps/web/lib/api` (`api.health/satellites/groups/search`, `ApiError`, timeout + abort) reading an env-driven base URL (`NEXT_PUBLIC_API_BASE_URL`); response contract types built on `@orbity/shared` (`SatelliteRecord`, etc.) — these define what 2.2/2.3 will serve. Route-level `loading.tsx`/`error.tsx` boundaries; richer `metadata`/`viewport`. Verified: lint + typecheck + `next build` green (page prerenders static), prod server returns 200 with all shell regions in SSR markup. **Not committed** (per request). — Claude
 - **2026-06-30** — _2.1_ — NestJS API skeleton: typed `ConfigModule` with class-validator env validation (`PORT`, `CORS_ORIGINS`, `REDIS_URL`, `CELESTRAK_BASE_URL`, `REFRESH_INTERVAL_HOURS`, `ADMIN_TOKEN`), structured logging via `nestjs-pino` (pretty in dev, JSON in prod), global `ValidationPipe`, CORS locked to configured origins, shutdown hooks, and a `GET /health` → `{status:"ok",uptime}` endpoint. Multi-stage `apps/api/Dockerfile` (pnpm monorepo aware) + root `.dockerignore`. Verified: `/health` 200 locally and inside a built container (573 MB); CORS header present; logs structured. **Not committed** (per request). — Claude

@@ -17,7 +17,7 @@ export interface SatelliteRecord {
 /** Bulk element set returned by `GET /satellites`. */
 export interface SatellitesResponse {
   /** When the underlying CelesTrak data was last refreshed (ISO 8601). */
-  updatedAt: string;
+  updatedAt: string | null;
   count: number;
   satellites: SatelliteRecord[];
 }
@@ -27,6 +27,7 @@ export interface SatelliteGroup {
   id: string;
   label: string;
   count: number;
+  lastRefresh: string | null;
 }
 
 /** Response of `GET /groups`. */
