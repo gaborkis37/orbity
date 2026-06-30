@@ -8,21 +8,32 @@
     "start": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "echo \"@orbity/api: no tests yet\" && exit 0"
+    "test": "vitest run"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.10",
+    "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.3.10",
     "@nestjs/platform-express": "^10.3.10",
+    "@nestjs/schedule": "^4.1.1",
     "@orbity/shared": "workspace:*",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "ioredis": "^5.4.1",
+    "nestjs-pino": "^4.1.0",
+    "pino": "^9.5.0",
+    "pino-http": "^10.3.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.2",
     "@nestjs/schematics": "^10.1.2",
+    "@nestjs/testing": "^10.3.10",
     "@types/node": "^20.14.0",
     "eslint": "^8.57.0",
-    "typescript": "^5.4.5"
+    "pino-pretty": "^11.3.0",
+    "typescript": "^5.4.5",
+    "vitest": "^2.1.8"
   }
 }

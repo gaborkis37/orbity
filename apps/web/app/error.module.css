@@ -1,0 +1,48 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--color-void);
+}
+
+.card {
+  max-width: 380px;
+  width: 100%;
+  padding: var(--space-6);
+  text-align: center;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: 1.25rem;
+}
+
+.message {
+  margin: 0 0 var(--space-5);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.retry {
+  appearance: none;
+  cursor: pointer;
+  padding: var(--space-2) var(--space-5);
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-void);
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-pill);
+  transition: background 0.15s ease;
+}
+
+.retry:hover {
+  background: var(--color-accent-strong);
+}
