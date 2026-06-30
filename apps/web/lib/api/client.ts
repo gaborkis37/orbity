@@ -93,8 +93,8 @@ export const api = {
     return request<HealthResponse>('/health', options);
   },
 
-  satellites(options?: RequestOptions): Promise<SatellitesResponse> {
-    return request<SatellitesResponse>('/satellites', options);
+  satellites(group = 'active', options?: RequestOptions): Promise<SatellitesResponse> {
+    return request<SatellitesResponse>(`/satellites?group=${encodeURIComponent(group)}`, options);
   },
 
   groups(options?: RequestOptions): Promise<GroupsResponse> {

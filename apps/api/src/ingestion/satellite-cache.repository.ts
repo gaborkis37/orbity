@@ -75,9 +75,7 @@ export class SatelliteCacheRepository {
 
   /** Case-insensitive name/id search over the lightweight index. */
   async search(query: string, limit = 20): Promise<SearchIndexEntry[]> {
-    const raw = await this.store.get(KEY.search);
-    if (!raw) return [];
-    const index = JSON.parse(raw) as SearchIndexEntry[];
+    const index = await this.readSearchIndex();
     const q = query.trim().toLowerCase();
     if (!q) return [];
     const results: SearchIndexEntry[] = [];
@@ -88,6 +86,12 @@ export class SatelliteCacheRepository {
       }
     }
     return results;
+  }
+
+  /** Read the lightweight index for ranked public search. */
+  async readSearchIndex(): Promise<SearchIndexEntry[]> {
+    const raw = await this.store.get(KEY.search);
+    return raw ? (JSON.parse(raw) as SearchIndexEntry[]) : [];
   }
 
   async setLastRefresh(epochMs: number): Promise<void> {

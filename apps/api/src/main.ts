@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
+import { configureApplication } from './app.setup';
 import type { ConfigTree } from './config/configuration';
 
 async function bootstrap() {
@@ -15,10 +15,7 @@ async function bootstrap() {
   const config = app.get<ConfigService<ConfigTree, true>>(ConfigService);
   const { port, corsOrigins } = config.getOrThrow('app', { infer: true });
 
-  app.enableCors({ origin: corsOrigins, credentials: true });
-  app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
-  );
+  configureApplication(app, corsOrigins);
   app.enableShutdownHooks();
 
   await app.listen(port);

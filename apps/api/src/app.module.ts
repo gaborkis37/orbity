@@ -8,6 +8,7 @@ import configuration, { ConfigTree } from './config/configuration';
 import { NodeEnv, validateEnv } from './config/env.validation';
 import { HealthController } from './health/health.controller';
 import { IngestionModule } from './ingestion/ingestion.module';
+import { PublicApiModule } from './public-api/public-api.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { IngestionModule } from './ingestion/ingestion.module';
     ScheduleModule.forRoot(),
     CacheModule,
     IngestionModule,
+    PublicApiModule,
   ],
   controllers: [AppController, HealthController],
 })
