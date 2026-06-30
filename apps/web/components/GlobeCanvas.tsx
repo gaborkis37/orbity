@@ -1,17 +1,21 @@
+'use client';
+
+import dynamic from 'next/dynamic';
 import styles from './GlobeCanvas.module.css';
 
-/**
- * Full-viewport placeholder for the 3D globe. Task 3.2 replaces the inner
- * markup with the Resium `<Viewer>`; the sizing/stacking contract stays.
- */
+const CesiumGlobe = dynamic(() => import('./CesiumGlobe').then((module) => module.CesiumGlobe), {
+  ssr: false,
+  loading: () => (
+    <div className={styles.loading} role="status">
+      Loading Earth…
+    </div>
+  ),
+});
+
 export function GlobeCanvas() {
   return (
-    <div className={styles.canvas} aria-hidden="true">
-      <div className={styles.glow} />
-      <div className={styles.placeholder}>
-        <span className={styles.label}>Globe canvas</span>
-        <span className={styles.sub}>Cesium viewer mounts here (Task 3.2)</span>
-      </div>
+    <div className={styles.canvas} aria-label="Interactive 3D Earth">
+      <CesiumGlobe />
     </div>
   );
 }

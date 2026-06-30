@@ -5,9 +5,9 @@
 > Agents: follow the protocol in [`CLAUDE.md`](CLAUDE.md). Keep this file updated as you go.
 
 **Project:** Real-time 3D satellite tracker (Cesium + Next.js + NestJS monorepo).
-**Last updated:** 2026-06-30 — _Task 2.3 review follow-up: Redis-backed per-IP public API rate limiting added and verified; no PR requested._
-**Current phase:** Phase 2 (backend) + Phase 3 (frontend) in progress
-**Overall progress:** 4 / 14 v1 tasks complete (2.3 built and verified; pending integration)
+**Last updated:** 2026-06-30 — _Task 3.2 implemented and ready for review; browser performance check pending._
+**Current phase:** Phase 2 (backend) complete; Phase 3 (frontend) in progress
+**Overall progress:** 5 / 14 v1 tasks complete
 
 ---
 
@@ -27,9 +27,7 @@
 
 These tasks have all dependencies met. Claim one by setting it 🟡 + your name below.
 
-- **Task 3.2 — Cesium globe via Resium** _(frontend track; deps 3.1 ✅ met — adds `cesium`/`resium`, client-only)_
-
-_Backend task 2.3 is built and verified on its feature branch. Frontend task 3.2 remains the next unblocked task; integrating 2.3 and completing 3.2 will unblock 3.3._
+_No additional tasks are ready until Task 3.2 is complete._
 
 ---
 
@@ -48,14 +46,14 @@ _Backend task 2.3 is built and verified on its feature branch. Frontend task 3.2
 | --- | -------------------------------------------------------------- | :----: | ---------- | -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | 2.1 | NestJS skeleton + /health + config + Dockerfile + CORS         |   ✅   | 1.1        | Claude   | (uncommitted)                | typed config+validation, pino logging, ValidationPipe; /health 200; docker image built & container serves /health |
 | 2.2 | CelesTrak ingestion + Redis cache + scheduled refresh          |   ✅   | 2.1, 1.2   | Claude   | PR #1                        | All acceptance criteria verified vs live CelesTrak + local Redis                                                 |
-| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   🟡   | 2.2        | Codex    | feat/2.3-public-api          | Built + verified; no PR requested. Redis-backed per-IP limits; ranked search; gzip/cache; Swagger; 10 API tests  |
+| 2.3 | Public API endpoints (/satellites, /search, /groups) + Swagger |   ✅   | 2.2        | Codex    | PR #2                        | Redis-backed per-IP limits; ranked search; gzip/cache headers; Swagger; 10 API tests pass                        |
 
 ### Phase 3 — Frontend (visualization)
 
 | ID  | Task                                                             | Status | Depends on    | Assignee | Branch / PR   | Notes                                                                                                                                                                                                                                                                |
 | --- | ---------------------------------------------------------------- | :----: | ------------- | -------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 3.1 | Next.js app shell + dark space UI + typed API client             |   ✅   | 1.1           | Claude   | (uncommitted) | full-viewport globe placeholder + overlay HUD (search top, info panel side/bottom-sheet); CSS-var design tokens; typed `lib/api` client (env base URL, shared types); loading/error boundaries; live API status badge; lint/typecheck/build green, shell renders 200 |
-| 3.2 | Cesium globe via Resium (client-only, assets wired)              |   ⬜   | 3.1           | —        | —             | No SSR for Cesium                                                                                                                                                                                                                                                    |
+| 3.2 | Cesium globe via Resium (client-only, assets wired)              |   🔵   | 3.1           | Codex    | feat/3.2-cesium-globe | Resium Viewer, local Natural Earth imagery, sun lighting, clean controls; Workers/Assets/Widgets/ThirdParty emitted; root gates pass. Browser FPS/console check pending.                                                                             |
 | 3.3 | Propagation Web Worker + position pipeline                       |   ⬜   | 3.2, 1.2, 2.3 | —        | —             | Transferable typed arrays                                                                                                                                                                                                                                            |
 | 3.4 | Render satellites as instanced points (PointPrimitiveCollection) |   ⬜   | 3.3           | —        | —             | Few draw calls; no entity churn                                                                                                                                                                                                                                      |
 
@@ -114,6 +112,8 @@ _None yet._
 
 Each entry: date — task — what changed — who.
 
+- **2026-06-30** — _3.2_ — Added a client-only Resium Viewer with bundled Natural Earth imagery, globe sun lighting, a whole-Earth camera, and unnecessary Cesium widgets disabled. Next/Webpack now copies Cesium Workers, Assets, Widgets, and ThirdParty resources to `/_next/static/cesium`; production output contains all four asset trees and server-rendered HTML contains only the loading fallback. Root lint, typecheck, and build pass. Browser FPS/console verification remains pending because the local-server/headless-Chrome escalation did not execute. — Codex
+- **2026-06-30** — _2.3_ — PR #2 approved and merged into `main`; Task 2.3 complete and Phase 2 backend finished. — Codex
 - **2026-06-30** — _2.3 review follow-up_ — Added configurable per-IP rate limiting to all public API routes using the official NestJS throttler: a shared default budget (`120/min`) plus a stricter bulk catalog budget (`20/min`). Counters use the existing `CacheStore`, so production Redis provides one atomic fixed-window limit across API replicas while Redis-less local/test mode uses memory. Excess traffic returns `429` with `Retry-After`; successful requests expose `X-RateLimit-*` headers. Added explicit trusted-proxy-hop configuration so `req.ip` safely resolves forwarded client addresses. Health, Swagger, and the token-protected admin endpoint are outside the public limiter. HTTP tests verify both budgets and headers; storage tests verify blocking/reset behavior. Production module boot and live `/groups` headers verified; root lint, typecheck, build, and all 18 tests pass. — Codex
 - **2026-06-30** — _2.3_ — Public cached API delivered: bulk `GET /satellites?group=…`, detail `GET /satellites/:noradId`, ranked/capped `GET /search` (name, exact group, ISS aliases, NORAD id), and `GET /groups` with counts and refresh times. Public responses use edge-friendly `Cache-Control` plus Express ETags; gzip compression is enabled globally. Swagger UI is served at `/docs` with concrete request/response schemas. Web client types now match nullable cache timestamps and accept a satellite group. HTTP tests verify a compressed 6,001-record payload, ETag/cache headers, query validation, and Swagger; service tests verify ISS/Starlink/NORAD ranking. Root lint, typecheck, build, and all 16 tests pass. — Codex
 - **2026-06-30** — _2.2_ — CelesTrak ingestion + Redis cache + scheduled refresh. A `CacheStore` abstraction (`apps/api/src/cache`) with a Redis (`ioredis`) impl and an in-memory fallback, wired by `REDIS_URL` (works against local Redis and Upstash; atomic `byId` rebuild via temp-key + RENAME). `CelestrakClient` is the only server-side caller of CelesTrak (`FORMAT=json` OMM, 30s timeout, no client path reaches it). `IngestionService` fetches the configured groups (`stations,starlink,active`) with per-group retry/backoff, normalizes OMM→meta via `@orbity/shared` (skipping unparseable records), writes per-group blobs, then rebuilds a deduped `byId` hash + lightweight name/id/group search index (most-specific group wins). Scheduled via `@nestjs/schedule` every `REFRESH_INTERVAL_HOURS` (±10% jitter, hard 2 h floor); on any group failure the previous cache is kept and `lastRefresh` only advances when ≥1 group succeeds. Guarded `POST /admin/refresh` (`ADMIN_TOKEN`, constant-time compare, fails closed) forces a cycle. Vitest unit tests cover the happy path + a simulated 500 outage. **Verified** end-to-end: booted against a local Redis container ingesting live CelesTrak → 24 stations / 10 667 starlink / 15 891 active (15 893 deduped) with a refresh timestamp; a forced re-refresh hit a real CelesTrak 403 yet left the 15 893-object cache fully intact (criteria 1+2); only `/`, `/health`, `/admin/refresh` routes exist (criterion 3); 401 on missing/bad admin token. lint + typecheck + build + tests green. **Not committed** (per request). — Claude
