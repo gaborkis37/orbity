@@ -9,7 +9,7 @@ export const API_BASE_URL: string = (
 ).replace(/\/+$/, '');
 
 export const DEFAULT_SATELLITE_GROUP =
-  process.env.NEXT_PUBLIC_SATELLITE_GROUP?.trim() || 'starlink';
+  process.env.NEXT_PUBLIC_SATELLITE_GROUP?.trim() || 'active';
 
 const configuredTickMs = Number(process.env.NEXT_PUBLIC_PROPAGATION_TICK_MS ?? 1000);
 

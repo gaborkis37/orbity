@@ -6,10 +6,15 @@ import {
   TileMapServiceImageryProvider,
   Viewer as CesiumViewer,
 } from 'cesium';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ImageryLayer, Viewer } from 'resium';
 import { DEFAULT_SATELLITE_GROUP, PROPAGATION_TICK_MS } from '@/lib/env';
 import { useSatellitePositionPipeline } from '@/lib/propagation';
+import {
+  SatellitePointRenderer,
+  type SatelliteFilter,
+} from '@/lib/rendering/satellite-points';
+import styles from './CesiumGlobe.module.css';
 
 const CESIUM_BASE_URL = '/_next/static/cesium';
 
@@ -19,9 +24,12 @@ type ViewerRef = {
 
 export function CesiumGlobe() {
   const viewerRef = useRef<ViewerRef | null>(null);
+  const pointRendererRef = useRef<SatellitePointRenderer | null>(null);
   const latestSceneFrame = useRef(-1);
-  const latestScenePositions = useRef<Float64Array | null>(null);
-  const { latestFrameRef } = useSatellitePositionPipeline(
+  const [filter, setFilter] = useState<SatelliteFilter>('all');
+  const filterRef = useRef<SatelliteFilter>(filter);
+  filterRef.current = filter;
+  const { error, latestFrameRef, phase, satellites } = useSatellitePositionPipeline(
     DEFAULT_SATELLITE_GROUP,
     PROPAGATION_TICK_MS,
   );
@@ -54,44 +62,90 @@ export function CesiumGlobe() {
 
   useEffect(() => {
     const viewer = viewerRef.current?.cesiumElement;
+    if (!viewer || satellites.length === 0) return;
+
+    const renderer = new SatellitePointRenderer(viewer.scene, satellites);
+    renderer.setFilter(filterRef.current);
+    pointRendererRef.current = renderer;
+    latestSceneFrame.current = -1;
+
+    return () => {
+      if (pointRendererRef.current === renderer) pointRendererRef.current = null;
+      renderer.destroy();
+    };
+  }, [satellites]);
+
+  useEffect(() => {
+    pointRendererRef.current?.setFilter(filter);
+  }, [filter]);
+
+  useEffect(() => {
+    const viewer = viewerRef.current?.cesiumElement;
 
     if (!viewer) {
       return;
     }
 
-    // Cesium consumes only the newest completed worker frame. Task 3.4 plugs
-    // its PointPrimitiveCollection updates into this same pre-render boundary.
     return viewer.scene.preRender.addEventListener(() => {
       const frame = latestFrameRef.current;
-      if (frame && frame.sequence !== latestSceneFrame.current) {
-        latestScenePositions.current = frame.positions;
+      const renderer = pointRendererRef.current;
+      if (renderer && frame && frame.sequence !== latestSceneFrame.current) {
+        renderer.updatePositions(frame.positions);
         latestSceneFrame.current = frame.sequence;
       }
     });
   }, [latestFrameRef]);
 
   return (
-    <Viewer
-      ref={viewerRef}
-      full
-      baseLayer={false}
-      animation={false}
-      baseLayerPicker={false}
-      fullscreenButton={false}
-      geocoder={false}
-      homeButton={false}
-      infoBox={false}
-      navigationHelpButton={false}
-      projectionPicker={false}
-      sceneModePicker={false}
-      selectionIndicator={false}
-      timeline={false}
-      vrButton={false}
-      scene3DOnly
-      shouldAnimate
-      targetFrameRate={60}
-    >
-      <ImageryLayer imageryProvider={baseImagery} />
-    </Viewer>
+    <>
+      <Viewer
+        ref={viewerRef}
+        full
+        baseLayer={false}
+        animation={false}
+        baseLayerPicker={false}
+        fullscreenButton={false}
+        geocoder={false}
+        homeButton={false}
+        infoBox={false}
+        navigationHelpButton={false}
+        projectionPicker={false}
+        sceneModePicker={false}
+        selectionIndicator={false}
+        timeline={false}
+        vrButton={false}
+        scene3DOnly
+        shouldAnimate
+        targetFrameRate={60}
+      >
+        <ImageryLayer imageryProvider={baseImagery} />
+      </Viewer>
+      <div className={styles.catalogControl} aria-label="Satellite display filter">
+        {(['all', 'starlink'] as const).map((value) => (
+          <button
+            key={value}
+            type="button"
+            className={styles.filterButton}
+            data-active={filter === value}
+            aria-pressed={filter === value}
+            onClick={() => setFilter(value)}
+          >
+            {value === 'all' ? 'All objects' : 'Starlink'}
+          </button>
+        ))}
+        <span
+          className={styles.catalogStatus}
+          data-error={phase === 'error'}
+          role="status"
+          aria-live="polite"
+        >
+          {phase === 'running'
+            ? `${satellites.length.toLocaleString()} loaded`
+            : phase === 'error'
+              ? error
+              : 'Loading catalog…'}
+        </span>
+      </div>
+    </>
   );
 }
