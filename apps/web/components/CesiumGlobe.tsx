@@ -8,6 +8,8 @@ import {
 } from 'cesium';
 import { useEffect, useMemo, useRef } from 'react';
 import { ImageryLayer, Viewer } from 'resium';
+import { DEFAULT_SATELLITE_GROUP, PROPAGATION_TICK_MS } from '@/lib/env';
+import { useSatellitePositionPipeline } from '@/lib/propagation';
 
 const CESIUM_BASE_URL = '/_next/static/cesium';
 
@@ -17,6 +19,12 @@ type ViewerRef = {
 
 export function CesiumGlobe() {
   const viewerRef = useRef<ViewerRef | null>(null);
+  const latestSceneFrame = useRef(-1);
+  const latestScenePositions = useRef<Float64Array | null>(null);
+  const { latestFrameRef } = useSatellitePositionPipeline(
+    DEFAULT_SATELLITE_GROUP,
+    PROPAGATION_TICK_MS,
+  );
   const baseImagery = useMemo(
     () =>
       TileMapServiceImageryProvider.fromUrl(`${CESIUM_BASE_URL}/Assets/Textures/NaturalEarthII`),
@@ -43,6 +51,24 @@ export function CesiumGlobe() {
       },
     });
   }, []);
+
+  useEffect(() => {
+    const viewer = viewerRef.current?.cesiumElement;
+
+    if (!viewer) {
+      return;
+    }
+
+    // Cesium consumes only the newest completed worker frame. Task 3.4 plugs
+    // its PointPrimitiveCollection updates into this same pre-render boundary.
+    return viewer.scene.preRender.addEventListener(() => {
+      const frame = latestFrameRef.current;
+      if (frame && frame.sequence !== latestSceneFrame.current) {
+        latestScenePositions.current = frame.positions;
+        latestSceneFrame.current = frame.sequence;
+      }
+    });
+  }, [latestFrameRef]);
 
   return (
     <Viewer
