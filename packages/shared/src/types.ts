@@ -7,7 +7,7 @@
  *   - timestamps are milliseconds since the Unix epoch (Date.getTime())
  */
 
-/** A 3D vector (km for positions, km/s for velocities), in the ECI frame. */
+/** A 3D vector (km for positions, km/s for velocities); the owning field names its frame. */
 export interface Vec3 {
   x: number;
   y: number;
@@ -82,6 +82,8 @@ export interface SatelliteState {
   velocityKmS: number;
   /** Position in the ECI frame, kilometers. */
   eciPosition: Vec3;
+  /** Position in the Earth-fixed (ECEF/ECF) frame, kilometers. */
+  ecefPosition: Vec3;
   /** Velocity in the ECI frame, kilometers per second. */
   eciVelocity: Vec3;
   /** Time of this state, ms since Unix epoch. */

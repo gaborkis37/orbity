@@ -74,9 +74,16 @@ describe('propagate (ISS at epoch)', () => {
 
   it('returns consistent ECI vectors and timestamp', () => {
     const eciMag = Math.hypot(state.eciPosition.x, state.eciPosition.y, state.eciPosition.z);
+    const ecefMag = Math.hypot(state.ecefPosition.x, state.ecefPosition.y, state.ecefPosition.z);
     // Radius from Earth's center ~ 6378 + altitude.
     expect(eciMag).toBeGreaterThan(6700);
     expect(eciMag).toBeLessThan(6850);
+    // ECI → ECEF is a rotation, so it must preserve distance from Earth's center.
+    expect(ecefMag).toBeCloseTo(eciMag, 8);
+    expect(Math.atan2(state.ecefPosition.y, state.ecefPosition.x) * (180 / Math.PI)).toBeCloseTo(
+      state.lon,
+      8,
+    );
     expect(state.timestamp).toBe(EPOCH.getTime());
   });
 

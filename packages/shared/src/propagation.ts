@@ -9,14 +9,7 @@
  */
 import * as satellite from 'satellite.js';
 import type { SatRec } from 'satellite.js';
-import type {
-  LookAngle,
-  Observer,
-  OmmRecord,
-  SatelliteMeta,
-  SatelliteState,
-  Vec3,
-} from './types';
+import type { LookAngle, Observer, OmmRecord, SatelliteMeta, SatelliteState, Vec3 } from './types';
 
 const DEG2RAD = Math.PI / 180;
 const RAD2DEG = 180 / Math.PI;
@@ -122,7 +115,13 @@ function ommToTleLines(omm: OmmRecord): [string, string] {
   place(l1, 44, expField(omm.MEAN_MOTION_DDOT));
   place(l1, 53, expField(omm.BSTAR));
   place(l1, 62, String(omm.EPHEMERIS_TYPE ?? 0).slice(0, 1));
-  place(l1, 64, String(omm.ELEMENT_SET_NO ?? 0).padStart(4, ' ').slice(0, 4));
+  place(
+    l1,
+    64,
+    String(omm.ELEMENT_SET_NO ?? 0)
+      .padStart(4, ' ')
+      .slice(0, 4),
+  );
   let line1 = l1.join('');
   line1 += tleChecksum(line1);
 
@@ -135,7 +134,13 @@ function ommToTleLines(omm: OmmRecord): [string, string] {
   place(l2, 34, angle8(omm.ARG_OF_PERICENTER));
   place(l2, 43, angle8(omm.MEAN_ANOMALY));
   place(l2, 52, meanMotion11(omm.MEAN_MOTION));
-  place(l2, 63, String(omm.REV_AT_EPOCH ?? 0).padStart(5, ' ').slice(0, 5));
+  place(
+    l2,
+    63,
+    String(omm.REV_AT_EPOCH ?? 0)
+      .padStart(5, ' ')
+      .slice(0, 5),
+  );
   let line2 = l2.join('');
   line2 += tleChecksum(line2);
 
@@ -153,9 +158,7 @@ export function normalizeOmm(omm: OmmRecord, group?: string): NormalizedOmm {
   const [line1, line2] = ommToTleLines(omm);
   const satrec = satellite.twoline2satrec(line1, line2);
   if (satrec.error !== 0) {
-    throw new Error(
-      `SGP4 init failed for NORAD ${omm.NORAD_CAT_ID} (error ${satrec.error})`,
-    );
+    throw new Error(`SGP4 init failed for NORAD ${omm.NORAD_CAT_ID} (error ${satrec.error})`);
   }
   const meta: SatelliteMeta = {
     noradId: omm.NORAD_CAT_ID,
@@ -181,6 +184,8 @@ export function propagateSatrec(satrec: SatRec, date: Date): SatelliteState {
   const eciVelocity: Vec3 = { x: pv.velocity.x, y: pv.velocity.y, z: pv.velocity.z };
 
   const gmst = satellite.gstime(date);
+  const ecf = satellite.eciToEcf(pv.position, gmst);
+  const ecefPosition: Vec3 = { x: ecf.x, y: ecf.y, z: ecf.z };
   const geo = satellite.eciToGeodetic(pv.position, gmst);
 
   return {
@@ -189,6 +194,7 @@ export function propagateSatrec(satrec: SatRec, date: Date): SatelliteState {
     altKm: geo.height,
     velocityKmS: Math.hypot(eciVelocity.x, eciVelocity.y, eciVelocity.z),
     eciPosition,
+    ecefPosition,
     eciVelocity,
     timestamp: date.getTime(),
   };
